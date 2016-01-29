@@ -5,7 +5,7 @@ import lab0.List;
 /**
  * Your assignment is to modify this class so it uses a tail reference
  * 
- * @author roncytron and WhoAreYou
+ * @author roncytron and Terry (Shuailin) Lu (id: 435091)
  *
  * @param <T>
  */
