@@ -10,11 +10,14 @@ import lab0.List;
  * @param <T>
  */
 public class LinkedListWithTail<T> implements List<T> {
-	
+
 	private ListNode<T> head;
-	
+	private ListNode<T> tail;
+
 	public LinkedListWithTail() {
 		this.head = null;   // nothing in our list yet
+		this.tail= null;
+
 	}
 
 	@Override
@@ -23,20 +26,24 @@ public class LinkedListWithTail<T> implements List<T> {
 			ListNode<T> p = new ListNode<T>();
 			p.value = thing;
 			head = p;
+			tail = p;
+
+		}
+		else if (head.next==null){
+			ListNode<T> p = new ListNode<T>();
+			p.value = thing;
+
+			tail = p;
 		}
 		else {
 			ListNode<T> q = new ListNode<T>();
 			q.value = thing;
-			// search for the end of the list
-			//
-			ListNode<T> p = head;
-			while (p.next != null) {
-				p = p.next;
-			}
-			//  p is where it needs to be slide 201
-			p.next = q;
+			tail.next = q;
+
+			tail=q;
+
 		}
-		
+
 	}
 
 	/**
@@ -52,7 +59,7 @@ public class LinkedListWithTail<T> implements List<T> {
 		}
 		return p.value;
 	}
-	
+
 	public String toString() {
 		String ans = "[ ";
 		for (ListNode<T> p = head; p != null; p = p.next) {
@@ -61,7 +68,7 @@ public class LinkedListWithTail<T> implements List<T> {
 		ans = ans + "]";
 		return ans;
 	}
-	
+
 	public static void main(String[] args) {
 		LinkedListWithTail<String> list = new LinkedListWithTail<String>();
 		list.addLast("hello");
