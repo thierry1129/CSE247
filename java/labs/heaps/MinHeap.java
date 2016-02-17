@@ -26,10 +26,40 @@ public class MinHeap<T extends Comparable<T>> implements PriorityQueue<T> {
 		this.size = 0;
 	}
 
+
+	private void swap(int from, int to){
+
+		Decreaser<T> temp = array[from];
+
+		array[from]=array[to];
+
+		array[to]= temp;
+
+		array[from].loc=from;
+
+		array[to].loc = to;
+	}
+
+
+	private void swapup (int where){
+
+		while (where!=1){
+			if ((array[where].getValue()).compareTo((array[where/2]).getValue())<0)
+			{
+
+				swap(where, where/2);
+			}
+			where /=2;
+
+		}
+	}
+
+
+
 	//
 	// Here begin the methods described in lecture
 	//
-	
+
 	/**
 	 * Insert a new thing into the heap.  As discussed in lecture, it
 	 *   belongs at the end of objects already in the array.  You can avoid
@@ -56,13 +86,14 @@ public class MinHeap<T extends Comparable<T>> implements PriorityQueue<T> {
 		//    array, the .loc field of the Decreaser must change to reflect
 		//    that.
 		//
+
+
 		Decreaser<T> ans = new Decreaser<T>(thing, this, ++size);
-		//
-		// You have to now put ans into the heap array
-		//   Recall in class we reduced insert to decrease
-		//
-		// FIXME
-		//
+
+		array[size]=ans;
+
+		swapup(size);
+
 		return ans;
 	}
 
@@ -93,12 +124,12 @@ public class MinHeap<T extends Comparable<T>> implements PriorityQueue<T> {
 	 *     decreased in value
 	 */
 	void decrease(int loc) {
-		//
-		// As described in lecture
-		//
-		
+
+
+		swapup(loc);
+
 	}
-	
+
 	/**
 	 * Described in lecture, this method will return a minimum element from
 	 *    the heap.  The hole that is created is handled as described in
@@ -108,16 +139,24 @@ public class MinHeap<T extends Comparable<T>> implements PriorityQueue<T> {
 	 */
 	public T extractMin() {
 		T ans = array[1].getValue();
-		//
-		// There is effectively a hole at the root, at location 1 now.
-		//    Fix up the heap as described in lecture.
-		//    Be sure to store null in an array slot if it is no longer
-		//      part of the active heap
-		//
-		// FIXME
-		//
+
+		swap(1,size);
+
+		array[size]=null;
+		
+		size--;
+
+		if(size>0){
+			heapify(1);
+
+
+		}
+
 		return ans;
 	}
+
+	
+
 
 	/**
 	 * As described in lecture, this method looks at a parent and its two 
@@ -127,12 +166,41 @@ public class MinHeap<T extends Comparable<T>> implements PriorityQueue<T> {
 	 * @param where the index into the array where the parent lives
 	 */
 	private void heapify(int where) {
-		//
-		// As described in lecture
-		//  FIXME
-		//
+		if((where*2+1)<=size){
+
+			if ( 
+					(array[where].getValue()).compareTo((array[where*2]).getValue())>0||
+
+					(array[where].getValue()).compareTo((array[where*2+1]).getValue())>0){
+
+
+				if ((array[where*2]).getValue().compareTo((array[where*2+1]).getValue())<0){
+
+					swap(where, where*2);
+					heapify(where*2);
+				}
+				else{
+					swap(where, where*2+1);
+					heapify(where*2+1);
+				}
+
+
+			}
+
+		}
+
+		else if (where * 2 +1 == size + 1) {
+			if(array[where].getValue().compareTo((array[size].getValue()))>0){
+				swap(where,size);
+
+			}
+
+
+		}
+
 	}
-	
+
+
 	/**
 	 * Does the heap contain anything currently?
 	 * I implemented this for you.  Really, no need to thank me!
@@ -140,11 +208,11 @@ public class MinHeap<T extends Comparable<T>> implements PriorityQueue<T> {
 	public boolean isEmpty() {
 		return size == 0;
 	}
-	
+
 	//
 	// End of methods described in lecture
 	//
-	
+
 	//
 	// The methods that follow are necessary for the debugging
 	//   infrastructure.
@@ -174,11 +242,11 @@ public class MinHeap<T extends Comparable<T>> implements PriorityQueue<T> {
 	public int size() {
 		return this.size;
 	}
-	
+
 	public int capacity() {
 		return this.array.length-1;
 	}
-	
+
 
 	/**
 	 * The commented out code shows you the contents of the array,
@@ -186,11 +254,11 @@ public class MinHeap<T extends Comparable<T>> implements PriorityQueue<T> {
 	 *   output.
 	 */
 	public String toString() {
-//		String ans = "";
-//		for (int i=1; i <= size; ++i) {
-//			ans = ans + i + " " + array[i] + "\n";
-//		}
-//		return ans;
+		//		String ans = "";
+		//		for (int i=1; i <= size; ++i) {
+		//			ans = ans + i + " " + array[i] + "\n";
+		//		}
+		//		return ans;
 		return HeapToStrings.toTree(this);
 	}
 
