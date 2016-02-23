@@ -96,11 +96,19 @@ public class TimedRunnable extends Thread implements Runnable {
 			pq.offer(t);
 		}
 		//
-		// return the best time by pulling the first
-		//   entry from the PriorityQueue
+		// return the median time by pulling the first
+		//   n/2 entries from the PriorityQueue
+		//   for linked list we wanted the fastest time
+		//   but if there is randomness in the data, the median makes
+		//   more sense.
+		// FIXME The strategy for which time to take should be
+		//   something we can specify as a parameter
 		//   We study priority queues later 
 		//
-		Duration ans = pq.poll();
+		Duration ans = null;
+		for (int i=0; i <= numTimes/2; ++i) {
+			ans = pq.poll();
+		}
 		return ans;
 	}
 
