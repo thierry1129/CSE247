@@ -29,12 +29,12 @@ public class LinkedListWithTail<T> implements List<T> {
 			tail = p;
 
 		}
-		else if (head.next==null){
-			ListNode<T> p = new ListNode<T>();
-			p.value = thing;
-
-			tail = p;
-		}
+//		else if (head.next==null){
+//			ListNode<T> p = new ListNode<T>();
+//			p.value = thing;
+//
+//			tail = p;
+//		}
 		else {
 			ListNode<T> q = new ListNode<T>();
 			q.value = thing;
