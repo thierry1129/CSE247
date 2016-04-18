@@ -60,7 +60,7 @@ public class RK {
 			hash=(hash*31+d)%511;
 
 			loc = (loc + 1) % bufferArray.length;
-			System.out.println(hash);
+
 			return hash;
 
 		}
@@ -74,7 +74,7 @@ public class RK {
 
 
 
-		hash=(hash*31%511-(intMod(31,m,a)*oldCharacter%511)%511+d%511)%511;
+		hash=(hash*31%511-(intMod(31,m,a)*oldCharacter%a)%a+d%a)%a;
 
 
 		if ( hash<0){
@@ -86,7 +86,7 @@ public class RK {
 
 		bufferArray[loc] = d;
 		loc = (loc + 1) % bufferArray.length;
-		System.out.println(hash);
+
 		return hash;
 
 	}
