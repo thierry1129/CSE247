@@ -18,7 +18,7 @@ public class RK {
 	 * @param m size of the window
 	 */
 	public RK(int m) {
-		
+
 		this.size=m;
 
 
@@ -43,7 +43,7 @@ public class RK {
 	 * @param d the next character in the target string
 	 * @return
 	 */
-// helper method to compute large mods. 
+	// helper method to compute large mods. 
 
 	public int intMod(int a, int n, int b){
 		if(n>1){
@@ -56,8 +56,8 @@ public class RK {
 
 	}
 
-	
-	
+
+
 	public int nextCh(char d) {
 
 		if (bufferArray[loc] == '\u0000') {
