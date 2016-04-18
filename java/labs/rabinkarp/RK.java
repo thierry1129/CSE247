@@ -28,11 +28,6 @@ public class RK {
 	}
 
 
-
-
-
-
-
 	int loc = 0;
 
 	int hash=0;
@@ -74,17 +69,13 @@ public class RK {
 
 		char oldCharacter = bufferArray[loc];
 		int a=511;
-		//int c = 2;
+
 		int m = this.size;
 
 
-		// replacing :      ((int)Math.pow(31, this.size))%511
 
-
-		//with          :    ((((int)(Math.pow(((int)Math.pow(31, this.size/c))%a,c)))%511)*((int)Math.pow(31, m%c))%511)%a
 		hash=(hash*31%511-(intMod(31,m,a)*oldCharacter%511)%511+d%511)%511;
 
-		//((((int)(Math.pow(((int)Math.pow(31, this.size/c))%a,c)))%511)*((int)Math.pow(31, m%c))%511)%a
 
 		if ( hash<0){
 
@@ -97,9 +88,6 @@ public class RK {
 		loc = (loc + 1) % bufferArray.length;
 		System.out.println(hash);
 		return hash;
-
-
-
 
 	}
 
