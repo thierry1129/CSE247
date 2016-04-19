@@ -1,0 +1,238 @@
+<HTML>
+<HEAD>
+<TITLE>Lab 3:  Hashing</TITLE>
+<link rel="stylesheet" href="style.css" type="text/css">
+</HEAD>
+<BODY>
+<BLOCKQUOTE>
+<UL>
+ <LI> This is a copy of our hashing lab, which is given to you so you can see the various markups that are used
+for our web pages.  
+  <LI> Edit this into the page you want for your extension submission.
+  <LI> Use tags appropriately!  See how they are used below and use them consistently too please.
+  <LI> You are reminded <EM>not</EM> to author this page Word or any other tool.  Just edit the page.
+  <LI> Do not change the <KBD>style.css</KBD> file, as it is used throughout all of the 247 web pages.
+  </UL>
+</BLOCKQUOTE>
+<CENTER><H2>
+<!--#include virtual="start.html"--><br>
+Hashing<br>
+Author:  Ron Cytron (be sure to your name here, not mine)
+</H2>
+
+
+</H2>
+</CENTER>
+<EM>Abstract:</EM>  We have seen hashing as a technique for obtaining
+expected constant-time operations on finding or inserting elements in a set.
+Hashing is also used to compute <a href="https://en.wikipedia.org/wiki/Digital_signature"> digital signatures</a> for confirming the authenticity of messages.
+<p>
+In this assignment, you will apply a hashing scheme in pursuit of finding
+occurences of one string in another,
+using the <a href="https://en.wikipedia.org/wiki/Rabin%E2%80%93Karp_algorithm">Rabin&ndash;Karp algorithm</a>.
+<p>
+That algorithm is discussed in Section 32.2 of our text, on page 990.
+<HR>
+<H2>Introduction</H2>
+Suppose we have two strings of interest:
+<DL>
+  <DT> <KBD>target</KBD>
+  <DD> is a relatively long string of length <i>n</i>.
+   <DT> <KBD>query</KBD>
+   <DD> is a relatively short string of length <i>m</i>.
+</DL>
+We are interested in finding all occurrences of <KBD>query</KBD> in <KBD>target</KBD>.
+For example, consider the <KBD>query</KBD>&nbsp;<KBD>aaba</KBD>  and
+the <KBD>target</KBD>&nbsp;<KBD>aabaacaadaabaabaa</KBD>.  
+The last character of the query occurs within the
+target as shown below:
+<PRE>
+a a b a a c a a d a a b a a b a a
+       |                 |     |
+a a b a                  |     |
+                  a a b a      |
+                        a a b a
+</PRE>
+Notice that the second and third matches overlap.  As discused in class,
+the most straightforward algorithm is as follows:
+<PRE>
+   for each i in the interval [0, n)
+      match = true
+      for each j in the interval [0, m)
+          if target[i+j] &ne; query[j]
+             match = false
+          end if
+      end for
+      if match
+         // definite match of query starting at index i of target
+       end if
+   end for
+</PRE>
+The worst-case complexity of this approach is 
+&Theta;(mn).
+<H2>Rabin&ndash;Karp Algorithm</H2>
+Instead of trying to match the query at each location in the target, the
+Rabin&ndash;Karp Algorithm computes a <i>rolling hash</i> of a window
+of <i>m</i> characters of the target.   Near the beginning of the target, where
+there may not be <i>m</i> characters in the window, the value 0 is 
+used for those
+entries outside of the target.
+<p>
+We will use in particular the following hash function for a window
+of size <i>m</i> in a character array, with the first character of
+the window at index <KBD>start</KBD>:
+<PRE>
+private static int hashFor(char[] chars, int start, int m) {
+   int ans = 0;
+   for (int i=start; i &lt; start+m; ++i) {
+      int val = 0;
+      //
+      // Within the bounds of the chars array?
+      //
+      if (i &ge; 0 &amp;&amp; i &lt; chars.length) 
+         val = chars[i];                        // then use the character value there
+      ans = mod(
+                mod(31*ans, 511) + mod(val, 511), 
+                511
+               );
+   }
+   return ans;
+}
+</PRE>
+The above function is similar to how Java computes <KBD>.hashCode()</KBD> for
+a <KBD>String</KBD>, except that we confine the results to being strictly less
+than 511 using <EM>mod</EM> (the <KBD>%</KBD> operator).  The following
+identities related to mod should be useful in this assignment:
+<UL>
+  <LI> (a + b) mod p = ( (a mod p) + (b mod p) ) mod p
+  <LI> (a &times; b) mod p = ( (a mod p) &times; (b mod p) ) mod p
+</UL>
+<BLOCKQUOTE>
+You should investigate how large the intermediate results of addition
+and multiplication can get before the final <EM>mod p</EM> is applied.
+</BLOCKQUOTE>
+<p>
+Applied to our running example, the rolling hash values at the end of each window within our target string are as follows:
+<TABLE>
+<TR>
+<TD> <KBD>a</KBD></TD><TD> </TD><TD><KBD>a</KBD></TD><TD> </TD><TD><KBD>b</KBD></TD><TD> </TD><TD><KBD>a</KBD></TD><TD> </TD><TD><KBD>a</KBD></TD><TD> </TD><TD><KBD>c</KBD></TD><TD> </TD><TD><KBD>a</KBD></TD><TD> </TD><TD><KBD>a</KBD></TD><TD> </TD><TD><KBD>d</KBD></TD><TD> </TD><TD><KBD>a</KBD></TD><TD> </TD><TD><KBD>a</KBD></TD><TD> </TD><TD><KBD>b</KBD></TD><TD> </TD><TD><KBD>a</KBD></TD><TD> </TD><TD><KBD>a</KBD></TD><TD> </TD><TD><KBD>b</KBD></TD><TD> </TD><TD><KBD>a</KBD></TD><TD> </TD><TD><KBD>a</KBD></TD>
+</TR><TR>
+<TD> </TD><TD>97</TD><TD> </TD><TD>38</TD><TD> </TD><TD>254</TD><TD> </TD><TD><FONT COLOR="RED">306</FONT></TD><TD> </TD><TD>214</TD><TD> </TD><TD>430</TD><TD> </TD><TD>337</TD><TD> </TD><TD>153</TD><TD> </TD><TD>73</TD><TD> </TD><TD>368</TD><TD> </TD><TD>92</TD><TD> </TD><TD>224</TD><TD> </TD><TD><FONT COLOR="RED">306</FONT></TD><TD> </TD><TD>214</TD><TD> </TD><TD>429</TD><TD> </TD><TD><FONT COLOR="RED">306</FONT></TD><TD> </TD><TD>214
+</TR>
+</TABLE>
+<UL>
+<LI>
+Note that at the end of each <KBD>aaba</KBD> substring, the hash value
+<FONT COLOR="RED">306</FONT> is produced.
+<LI> Thus, each time the rolling hash produces <FONT COLOR="RED">306</FONT>, we
+probably have a match of <KBD>aaba</KBD> in the target.
+<LI> No other window produces the <FONT COLOR="RED">306</FONT> hash value,
+so we were lucky in this example:  the hash value <FONT COLOR="RED">306</FONT>
+produced matches only for our query.
+</UL>
+The Rabin&ndash;Karp (RK) algorithm is essentially as follows:
+<UL>
+  <LI> Compute the RK hash for the query string of interest.  
+<BLOCKQUOTE>In our running
+example, that hash value is <FONT COLOR="RED">306</FONT>, which can be computed by 
+invoking
+<KBD>hashFor("aaba".toCharArray(), 0, 4)</KBD>
+</BLOCKQUOTE>
+  <LI> For each index <em>i</em> of the target string, 
+compute the rolling hash of the target that begins at index
+<EM>i-m+1</EM> and has length <EM>m</EM>.
+<BLOCKQUOTE>
+<UL>
+<LI> 
+In the example, the value for the first <KBD>a</KBD> is computed at indices
+-3, -2, -1, and 0, for a window of length 4 that ends at the first index
+of the target.  The numerical values for characters outside the window are 0,
+and the numerical value for <KBD>a</KBD> is its <a href="http://www.asciitable.com/">ASCII encoding</a> of 97.
+<LI> Thus, the window for <KBD>a</KBD> (the first character in our
+target string)  has hash value 97.  
+<LI> Moving one character to the right encounters another <KBD>a</KBD>.  Its
+hash value is at indices -2, -1, 0, and 1, which produces 31&times;97+97,
+which is 3104, but taken mod 511 is 38.
+<LI> Thus the window for <KBD>a a</KBD> (the first two characters in
+our target string) has value 38.
+</UL>
+</BLOCKQUOTE>
+<LI> <B>
+However, if we compute the rolling hash by calling the <KBD>hashFor</KBD> method above,
+the complexity is still
+&Theta;(mn).</B>  
+<LI> Your task is to compute that rolling hash incrementally,
+as described below.
+</UL>
+<H2>Your assignment</H2>
+<UL>
+  <LI> Update your repository as usual.
+  <LI> In the <KBD>rabinkarp</KBD> package of the <KBD>labs</KBD> source
+folder, find and open the <KBD>RK</KBD> class.
+  <LI> The constructor accepts the value of <i>m</I>, which is the length
+of the query string in this assignment.
+  <LI> The method <KBD>int nextCh(char c)</KBD> accepts a character supplied
+from outside, and returns the rolling KR hash of it and the previous
+<i>m-1</i> characters.
+</UL>
+<BLOCKQUOTE>
+You must complete the constructor and the <KBD>nextCh</KBD> method,
+subject to the constraints stated below.
+</BLOCKQUOTE>
+<p>
+In terms of our running example, the following calls after instantiation of
+a <KBD>KR(4)</KBD> object would return values as follows:
+<UL>
+   <LI> <KBD>nextCh('a')</KBD> &rarr; 98
+   <LI> <KBD>nextCh('a')</KBD> &rarr; 38
+   <LI> <KBD>nextCh('b')</KBD> &rarr; 254
+   <LI> <KBD>nextCh('a')</KBD> &rarr; <FONT COLOR="RED">306</FONT>
+   <LI> <KBD>nextCh('a')</KBD> &rarr; 214
+   <LI> <KBD>nextCh('c')</KBD> &rarr; 430
+</UL>
+<p>
+To receive full credit for this lab, your solution must:
+<UL>
+  <LI> Produce the correct hash results using an incremental approach,
+taking constant (<EM>&Theta;(1)</EM>) time.  This means  your approach must
+take less than <EM>&Omega;(m)</em> time.
+<BLOCKQUOTE>
+<UL>
+  <LI> Suppose <EM>h</EM> is the hash value of a window of <i>m</i> characters.
+  <LI> Suppose character <em>c</em> is about to leave that window, and
+      character <em>d</EM> is the next to be incorporated into the window.
+  <LI> We can compute the new value of h using:
+<em>
+  h = (h&times;31 &ndash; 31<sup>m</sup>&times;c + d) mod 511
+</em>
+</UL>
+</BLOCKQUOTE>
+  <LI> Ensure that the above computation does not cause overflow, taking care
+to keep the numbers <em>mod 511</em> wherever possible.
+  <LI> Use space proportional only to <I>m</I>, which is the size of
+the sliding window.
+  <LI> Implement a circular buffer as described in class, of size <I>m</I>, 
+to keep track of the
+last <I>m</I> characters seen.
+  <LI> Pass the unit tests.
+</UL>
+
+<H2>Having trouble?</H2>
+Post problems on <a href="http://www.piazza.com">piazza</a>, but do not 
+post code publicly there!
+<HR>
+<H2>How to submit your work</H2>
+<UL>
+ <LI> Make sure all of your work is commited in your repository.
+<BLOCKQUOTE>
+Note that we will run your solution against the JUnit test as it was
+given to you.  If you modify that test in some way, the results you see may
+not correspond with the testing necessary to receive credit.  
+<p>You can always
+revert any changes you make to the testing code back to what we gave you in
+the repository using <KBD>Team&hellip;Revert</KBD>, but be sure not to do that
+to your source code as it will wipe away work you may not have yet committed.
+</BLOCKQUOTE>
+ <LI> Your work will be graded as of the due date for this assignment.
+</UL>
+<!--#include virtual="end.html"--><br>
